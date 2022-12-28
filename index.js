@@ -8,8 +8,6 @@ const pc = new RTCPeerConnection(config);
 const dc = pc.createDataChannel("chatchannel", {negotiated: true, id: 0});
 
 dc.addEventListener("message", (e) => { console.log(e.data); });
-pc.addEventListener("connectionstatechange", handleChange);
-pc.addEventListener("iceconnectionstatechange", handleChange);
 pc.addEventListener("icecandidate", ({candidate}) => {
   if (candidate) return;
   console.log(pc.localDescription.sdp);
@@ -37,10 +35,3 @@ chat.addEventListener("keydown", (e) => {
   console.log(chat.value);
   chat.value = "";
 });
-
-function handleChange() {
-  console.log(new Date().toISOString() + ': ConnectionState: '
-  + pc.connectionState + ' IceConnectionState: ' + pc.iceConnectionState);
-}
-
-handleChange();
