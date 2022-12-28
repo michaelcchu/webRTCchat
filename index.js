@@ -21,16 +21,15 @@ chat.onkeypress = function(e) {
   chat.value = "";
 };
 
-async function createOffer() {
+function createOffer() {
   button.disabled = true;
-  await pc.setLocalDescription(await pc.createOffer());
+  pc.setLocalDescription(pc.createOffer());
   pc.onicecandidate = ({
     candidate
   }) => {
     if (candidate) return;
     offer.value = pc.localDescription.sdp;
     offer.select();
-    answer.placeholder = "Paste answer here. And Press Enter";
   };
 }
 
@@ -71,3 +70,5 @@ function handleChange() {
     'color:yellow', 'color:orange', 'color:yellow', 'color:orange');
 }
 handleChange();
+
+document.getElementById("button").addEventListener("click", createOffer);
