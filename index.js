@@ -1,26 +1,15 @@
-const output = document.getElementById('output');
-const config = {
-  iceServers: [{
-    urls: "stun:stun.1.google.com:19302"
-  }]
-};
+const config = {iceServers: [{urls: "stun:stun.1.google.com:19302"}]};
 const pc = new RTCPeerConnection(config);
-const dc = pc.createDataChannel("chat", {
-  negotiated: true,
-  id: 0
-});
-const log = msg => output.innerHTML += `<br>${msg}`;
+const dc = pc.createDataChannel("chat", {negotiated: true, id: 0});
 dc.onopen = () => chat.select();
-dc.onmessage = e => log(`> ${e.data}`);
-pc.oniceconnectionstatechange = e => log(pc.iceConnectionState);
-
+dc.onmessage = e => console.log(`> ${e.data}`);
+pc.oniceconnectionstatechange = e => console.log(pc.iceConnectionState);
 chat.onkeypress = function(e) {
   if (e.keyCode != 13) return;
   dc.send(chat.value);
-  log(chat.value);
+  console.log(chat.value);
   chat.value = "";
 };
-
 function createOffer() {
   button.disabled = true;
   pc.setLocalDescription(pc.createOffer());
@@ -32,7 +21,6 @@ function createOffer() {
     offer.select();
   };
 }
-
 offer.onkeypress = async function(e) {
   if (e.keyCode != 13 || pc.signalingState != "stable") return;
   button.disabled = offer.disabled = true;
@@ -50,7 +38,6 @@ offer.onkeypress = async function(e) {
     answer.select();
   };
 };
-
 answer.onkeypress = function(e) {
   if (e.keyCode != 13 || pc.signalingState != "have-local-offer") return;
   answer.disabled = true;
@@ -59,10 +46,8 @@ answer.onkeypress = function(e) {
     sdp: answer.value
   });
 };
-
 pc.onconnectionstatechange = ev => handleChange();
 pc.oniceconnectionstatechange = ev => handleChange();
-
 function handleChange() {
   let stat = 'ConnectionState: <strong>' + pc.connectionState + '</strong> IceConnectionState: <strong>' + pc.iceConnectionState + '</strong>';
   document.getElementById('stat').innerHTML = stat;
@@ -70,5 +55,4 @@ function handleChange() {
     'color:yellow', 'color:orange', 'color:yellow', 'color:orange');
 }
 handleChange();
-
 document.getElementById("button").addEventListener("click", createOffer);
