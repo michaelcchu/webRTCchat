@@ -7,7 +7,7 @@ const config = {iceServers: [{urls: "stun:stun.1.google.com:19302"}]};
 const pc = new RTCPeerConnection(config);
 const dc = pc.createDataChannel("chatchannel", {negotiated: true, id: 0});
 
-dc.addEventListener("message", (e) => { console.log(e.data); });
+dc.addEventListener("message", (e) => { console.log("> " + e.data); });
 pc.addEventListener("icecandidate", ({candidate}) => {
   if (candidate) return;
   console.log(pc.localDescription.sdp);
