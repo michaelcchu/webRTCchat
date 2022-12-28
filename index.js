@@ -1,37 +1,34 @@
-const button = document.getElementById("button");
 const offer = document.getElementById("offer");
 const answer = document.getElementById("answer");
+const text = document.getElementById("text");
 const chat = document.getElementById("chat");
-
+const display = document.getElementById("display");
 const config = {iceServers: [{urls: "stun:stun.1.google.com:19302"}]};
 const pc = new RTCPeerConnection(config);
 const dc = pc.createDataChannel("chatchannel", {negotiated: true, id: 0});
-
-dc.addEventListener("message", (e) => { console.log("> " + e.data); });
+dc.addEventListener("message", (e) => { 
+  display.innerHTML += "> " + e.data + "\r\n"; 
+});
 pc.addEventListener("icecandidate", ({candidate}) => {
   if (candidate) return;
-  console.log(pc.localDescription.sdp);
+  offer.disabled = true;
+  display.innerHTML = pc.localDescription.sdp;
 });
-button.addEventListener("click", () => {
-  button.disabled = true;
+offer.addEventListener("click", () => {
   pc.setLocalDescription(pc.createOffer());
 });
-offer.addEventListener("keydown", (e) => {
-  if (e.key !== "Enter") { return; }
-  if (pc.signalingState !== "stable") { return; }
-  button.disabled = offer.disabled = true;
-  pc.setRemoteDescription({type: "offer", sdp: offer.value.trim()+"\r\n"});
-  pc.setLocalDescription(pc.createAnswer());
-});
-answer.addEventListener("keydown", (e) => {
-  if (e.key !== "Enter") { return; }
-  if (pc.signalingState !== "have-local-offer") { return; }
+answer.addEventListener("click", () => {
   answer.disabled = true;
-  pc.setRemoteDescription({type: "answer", sdp: answer.value.trim()+"\r\n"});
+  if (pc.signalingState === "stable") {
+    pc.setRemoteDescription({type: "offer", sdp: text.value.trim()+"\r\n"});
+    pc.setLocalDescription(pc.createAnswer());
+  } else {
+    pc.setRemoteDescription({type: "answer", sdp: text.value.trim()+"\r\n"});
+  }
 })
 chat.addEventListener("keydown", (e) => {
-  if (e.key !== "Enter") { return; }
+  if (e.key!=="Enter") {return;}
   dc.send(chat.value);
-  console.log(chat.value);
+  display.innerHTML += chat.value + "\r\n";
   chat.value = "";
 });
