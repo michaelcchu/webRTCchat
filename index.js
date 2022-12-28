@@ -1,58 +1,46 @@
+const button = document.getElementById("button");
+const offer = document.getElementById("offer");
+const answer = document.getElementById("answer");
+const chat = document.getElementById("chat");
+
 const config = {iceServers: [{urls: "stun:stun.1.google.com:19302"}]};
 const pc = new RTCPeerConnection(config);
 const dc = pc.createDataChannel("chat", {negotiated: true, id: 0});
-dc.onopen = () => chat.select();
-dc.onmessage = e => console.log(`> ${e.data}`);
-pc.oniceconnectionstatechange = e => console.log(pc.iceConnectionState);
-chat.onkeypress = function(e) {
-  if (e.keyCode != 13) return;
+
+dc.addEventListener("message", (e) => { console.log(e.data); });
+pc.addEventListener("connectionstatechange", handleChange);
+pc.addEventListener("iceconnectionstatechange", handleChange);
+pc.addEventListener("icecandidate", ({candidate}) => {
+  if (candidate) return;
+  console.log(pc.localDescription.sdp);
+});
+button.addEventListener("click", () => {
+  button.disabled = true;
+  pc.setLocalDescription(pc.createOffer());
+});
+offer.addEventListener("keypress", (e) => {
+  if (e.key !== "Enter") { return; }
+  if (pc.signalingState !== "stable") { return; }
+  button.disabled = offer.disabled = true;
+  pc.setRemoteDescription({type: "offer", sdp: offer.value});
+  pc.setLocalDescription(pc.createAnswer());
+});
+answer.addEventListener("keypress", (e) => {
+  if (e.key !== "Enter") { return; }
+  if (pc.signalingState !== "have-local-offer") { return; }
+  answer.disabled = true;
+  pc.setRemoteDescription({type: "answer", sdp: answer.value});
+})
+chat.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter") { return; }
   dc.send(chat.value);
   console.log(chat.value);
   chat.value = "";
-};
-function createOffer() {
-  button.disabled = true;
-  pc.setLocalDescription(pc.createOffer());
-  pc.onicecandidate = ({
-    candidate
-  }) => {
-    if (candidate) return;
-    offer.value = pc.localDescription.sdp;
-    offer.select();
-  };
-}
-offer.onkeypress = async function(e) {
-  if (e.keyCode != 13 || pc.signalingState != "stable") return;
-  button.disabled = offer.disabled = true;
-  await pc.setRemoteDescription({
-    type: "offer",
-    sdp: offer.value
-  });
-  await pc.setLocalDescription(await pc.createAnswer());
-  pc.onicecandidate = ({
-    candidate
-  }) => {
-    if (candidate) return;
-    answer.focus();
-    answer.value = pc.localDescription.sdp;
-    answer.select();
-  };
-};
-answer.onkeypress = function(e) {
-  if (e.keyCode != 13 || pc.signalingState != "have-local-offer") return;
-  answer.disabled = true;
-  pc.setRemoteDescription({
-    type: "answer",
-    sdp: answer.value
-  });
-};
-pc.onconnectionstatechange = ev => handleChange();
-pc.oniceconnectionstatechange = ev => handleChange();
+});
+
 function handleChange() {
-  let stat = 'ConnectionState: <strong>' + pc.connectionState + '</strong> IceConnectionState: <strong>' + pc.iceConnectionState + '</strong>';
-  document.getElementById('stat').innerHTML = stat;
-  console.log('%c' + new Date().toISOString() + ': ConnectionState: %c' + pc.connectionState + ' %cIceConnectionState: %c' + pc.iceConnectionState,
-    'color:yellow', 'color:orange', 'color:yellow', 'color:orange');
+  console.log(new Date().toISOString() + ': ConnectionState: '
+  + pc.connectionState + ' IceConnectionState: ' + pc.iceConnectionState);
 }
+
 handleChange();
-document.getElementById("button").addEventListener("click", createOffer);
