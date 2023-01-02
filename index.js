@@ -22,6 +22,9 @@ pc.addEventListener("icecandidate", ({candidate}) => {
   offer.disabled = true;
   display.innerHTML = pc.localDescription.sdp;
 });
+pc.addEventListener("icecandidateerror", (e) => {
+  console.log(e);
+});
 offer.addEventListener("click", () => {
   pc.setLocalDescription(pc.createOffer());
 });
