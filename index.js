@@ -5,25 +5,7 @@ const chat = document.getElementById("chat");
 const display = document.getElementById("display");
 const config = {iceServers: [
   {
-    urls: "stun:stun.1.google.com:19302"
-  },
-  {
-    urls: "stun:relay.metered.ca:80",
-  },
-  {
-    urls: "turn:relay.metered.ca:80",
-    username: "840429176db5ad56ce6c859b",
-    credential: "13iM7/0UZL021lcB",
-  },
-  {
-    urls: "turn:relay.metered.ca:443",
-    username: "840429176db5ad56ce6c859b",
-    credential: "13iM7/0UZL021lcB",
-  },
-  {
-    urls: "turn:relay.metered.ca:443?transport=tcp",
-    username: "840429176db5ad56ce6c859b",
-    credential: "13iM7/0UZL021lcB",
+    urls: "stun:stun.l.google.com:19302"
   }
 ]};
 const pc = new RTCPeerConnection(config);
