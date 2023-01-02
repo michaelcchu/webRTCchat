@@ -16,6 +16,9 @@ dc.addEventListener("message", (e) => {
 dc.addEventListener("open", () => {
   chat.disabled = false;
 });
+dc.addEventListener("error", (e) => {
+  console.log(e);
+});
 pc.addEventListener("icecandidate", ({candidate}) => {
   console.log(candidate);
   if (candidate) {return;} 
